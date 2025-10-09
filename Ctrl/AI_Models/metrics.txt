@@ -1,0 +1,25 @@
+{
+  "test_mae_deg_per_output": {
+    "dtheta_h": 0.1689809113740921,
+    "dtheta_v": 0.11756840348243713
+  },
+  "test_rmse_deg_per_output": {
+    "dtheta_h": 0.21673636138439178,
+    "dtheta_v": 0.15178589522838593
+  },
+  "test_mae_deg_overall": 0.14327466487884521,
+  "test_rmse_deg_overall": 0.18426112830638885,
+  "n_train": 3500,
+  "n_val": 750,
+  "n_test": 750,
+  "hidden_dims": [
+    128,
+    128,
+    64
+  ],
+  "dropout": 0.05,
+  "batchnorm": true,
+  "weight_decay": 0.0001,
+  "learning_rate": 0.001,
+  "epochs_trained": 200
+}
