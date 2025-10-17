@@ -14,41 +14,23 @@
     .logo{width:44px;height:44px;background:linear-gradient(180deg,#fff7ed,#ffedd5);border-radius:8px;display:flex;align-items:center;justify-content:center}
     h1{font-size:18px;margin:0}
     .signin{font-size:14px;padding:8px 12px;border-radius:6px;border:1px solid transparent;cursor:pointer;background:transparent}
-
     .main{display:grid;grid-template-columns:1fr 320px;gap:22px;padding:22px}
-
     .left{display:flex;flex-direction:column;gap:18px}
     .card{background:var(--card);padding:16px;border-radius:8px;border:1px solid #f3f4f6}
     .title{font-size:22px;margin:0 0 6px 0}
     .sub{font-size:16px;color:var(--muted);margin:0}
-
     .conditions ul{list-style:none;padding:0;margin:8px 0 0 0}
     .conditions li{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #f3f4f6}
     .conditions li:last-child{border-bottom:none}
-
-    .mode-row{display:flex;align-items:center;gap:10px}
-    .mode-row .current{font-weight:600}
-
-    .modes{display:flex;gap:12px;margin-top:8px}
-    .btn{padding:10px 16px;border-radius:8px;border:1px solid #e6edf3;background:#fff;cursor:pointer}
-    .btn.active{background:var(--accent);color:#fff;border-color:transparent;box-shadow:0 6px 12px rgba(37,99,235,0.14)}
-
-    .right{display:flex;flex-direction:column;gap:12px}
-    .power-card{padding:14px;border-radius:8px;border:1px solid #f3f4f6}
-    .bars{display:flex;gap:12px;align-items:end;height:220px;padding:8px}
     .bar-wrap{flex:1;text-align:center}
     .bar{width:68px;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#111827,#374151);margin:0 auto;display:block}
     .bar.alt{background:linear-gradient(180deg,#60a5fa,#3b82f6)}
     .bar-label{font-size:12px;color:var(--muted);margin-top:8px}
-
     .power-metrics{font-size:13px;color:var(--muted);margin-top:12px}
     .metric{display:flex;justify-content:space-between;padding:6px 0}
-
     footer{padding:12px 18px;border-top:1px solid #eef2f7;font-size:12px;color:var(--muted)}
-
     @media (max-width:880px){
       .main{grid-template-columns:1fr;}
-      .bars{height:160px}
     }
   </style>
 </head>
@@ -67,10 +49,7 @@
           <div class="sub">Overview of current system</div>
         </div>
       </div>
-
-      <div>
-        <button class="signin">Sign in</button>
-      </div>
+      <div><button class="signin">Sign in</button></div>
     </header>
 
     <div class="main">
@@ -81,18 +60,10 @@
             <ul>
               <li><span>Active Temperature</span><strong id="activeTemp">30°</strong></li>
               <li><span>Average Temperature</span><strong id="avgTemp">32°</strong></li>
-              <li><span>Predicted Power for day</span><strong id="predictedPower">18W</strong></li>
+              <li><span>Predicted Energy for day</span><strong id="predictedPower">Loading...</strong></li>
               <li><span>Power Accumulated</span><strong id="accumulatedPower">10W</strong></li>
             </ul>
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="mode-row"><span style="font-weight:600">Mode :</span><span class="current" id="currentMode">Efficient</span></div>
-          <div class="modes">
-            <button class="btn" data-mode="Learning">Learning</button>
-            <button class="btn" data-mode="Hybrid">Hybrid</button>
-            <button class="btn active" data-mode="Efficient">Efficient</button>
+            <div id="lastUpdated" style="font-size:12px;color:#6b7280;margin-top:6px"></div>
           </div>
         </section>
       </div>
@@ -100,58 +71,42 @@
       <aside class="right">
         <div class="power-card">
           <h3 style="margin:0 0 10px 0;font-size:16px">Power output</h3>
-
-          <div class="bars" aria-hidden="true">
-            <div class="bar-wrap">
-              <span class="bar" id="barExpected" style="height:80%"></span>
-              <div class="bar-label">Expected</div>
-            </div>
-
-            <div class="bar-wrap">
-              <span class="bar alt" id="barActual" style="height:70%"></span>
-              <div class="bar-label">Actual</div>
-            </div>
-          </div>
-
           <div class="power-metrics">
-            <div class="metric"><span>Predicted:</span><span id="predictedSmall">18W</span></div>
+            <div class="metric"><span>Predicted:</span><span id="predictedSmall">Loading...</span></div>
             <div class="metric"><span>Accumulated:</span><span id="accumulatedSmall">10W</span></div>
           </div>
         </div>
       </aside>
     </div>
 
-    <footer>Sketch-inspired dashboard — save this file as <code>solar-dashboard.html</code> and open in a browser.</footer>
+    <footer>Solar Panel Dashboard — data updates automatically.</footer>
   </div>
 
   <script>
-    const data = { activeTemp: 30, avgTemp: 32, predictedPower: 18, accumulatedPower: 10, expected: 20, actual: 18 };
+    async function fetchPredictedPower() {
+      try {
+        // Relative path to the JSON in the same folder
+        const res = await fetch('predicted_daily_power.json?_=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
 
-    function $(id){return document.getElementById(id)}
+        const predicted = Number(data.total_predicted_energy_Wh || 0);
+        const ts = data.timestamp_generated || null;
 
-    function renderValues(){
-      $('activeTemp').textContent = data.activeTemp + '°';
-      $('avgTemp').textContent = data.avgTemp + '°';
-      $('predictedPower').textContent = data.predictedPower + 'W';
-      $('accumulatedPower').textContent = data.accumulatedPower + 'W';
-      $('predictedSmall').textContent = data.predictedPower + 'W';
-      $('accumulatedSmall').textContent = data.accumulatedPower + 'W';
-
-      const maxVal = Math.max(data.expected, data.actual, data.predictedPower || 20);
-      $('barExpected').style.height = (data.expected / maxVal * 100) + '%';
-      $('barActual').style.height = (data.actual / maxVal * 100) + '%';
+        document.getElementById('predictedPower').textContent = predicted.toFixed(2) + ' Wh';
+        document.getElementById('predictedSmall').textContent = predicted.toFixed(2) + ' Wh';
+        document.getElementById('lastUpdated').textContent =
+          ts ? ('Last updated: ' + new Date(ts).toLocaleString()) : '';
+      } catch (err) {
+        console.error('Failed to load predicted power:', err);
+        document.getElementById('predictedPower').textContent = 'N/A';
+        document.getElementById('predictedSmall').textContent = 'N/A';
+        document.getElementById('lastUpdated').textContent = 'Last updated: N/A';
+      }
     }
 
-    document.querySelectorAll('.btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const mode = btn.getAttribute('data-mode');
-        document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        $('currentMode').textContent = mode;
-      });
-    });
-
-    renderValues();
+    fetchPredictedPower();
+    setInterval(fetchPredictedPower, 5 * 60 * 1000);
   </script>
 </body>
 </html>
